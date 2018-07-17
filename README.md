@@ -1,4 +1,4 @@
-# Pandadoc::Api
+# Pandadoc::Api  &nbsp;[![Build Status](https://secure.travis-ci.org/CatchRelease/pandadoc-api.svg?branch=master)](https://travis-ci.org/CatchRelease/pandadoc-api) [![Gem Version](https://img.shields.io/gem/v/pandadoc-api.svg)](https://rubygems.org/gems/pandadoc-api)
 
 PandaDoc API is meant to be a simplistic ruby wrapper around the PandaDoc API. It assumes that token management is handled 
 elsewhere and that parsing of the response is up to the user.
