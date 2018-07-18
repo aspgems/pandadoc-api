@@ -10,3 +10,9 @@
 
 # rspec failure tracking
 .rspec_status
+
+# ignore the .lock file in gems https://yehudakatz.com/2010/12/16/clarifying-the-roles-of-the-gemspec-and-gemfile/
+Gemfile.lock
+
+#ignore the generate gem
+pandadoc-api-*.gem
