@@ -42,7 +42,7 @@ describe Pandadoc::Api::Document do
 
   describe 'create' do
     before :each do
-      stub_request(:post, "#{Pandadoc::Api::API_ROOT}/documents").to_return(status: 200)
+      stub_request(:post, "#{Pandadoc::Api::API_ROOT}/documents").to_return(status: 201)
     end
 
     after :each do
@@ -55,13 +55,11 @@ describe Pandadoc::Api::Document do
       expect(a_request(:post, "#{Pandadoc::Api::API_ROOT}/documents")).to have_been_made.once
     end
 
-    it 'passes the params' do
+    it 'passes the params as json' do
       params = { name: 'My Doc', template_uuid: '1234', recipients: ['a@a.com'] }
       subject.create('token', params)
 
-      expect(a_request(:post, "#{Pandadoc::Api::API_ROOT}/documents").with do |req|
-        req.body == 'name=My%20Doc&template_uuid=1234&recipients[]=a%40a.com'
-      end).to have_been_made
+      expect(WebMock).to have_requested(:post, "#{Pandadoc::Api::API_ROOT}/documents").with(body: params.to_json)
     end
 
     it 'sends authorization' do
@@ -76,7 +74,7 @@ describe Pandadoc::Api::Document do
 
     it 'returns results' do
       params = { name: 'My Doc', template_uuid: '1234', recipients: ['a@a.com'] }
-      expect(subject.create('token', params).code).to eq(200)
+      expect(subject.create('token', params).code).to eq(201)
     end
   end
 

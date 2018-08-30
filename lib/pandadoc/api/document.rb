@@ -70,7 +70,7 @@ module Pandadoc
 
         HTTParty.post("#{Pandadoc::Api::API_ROOT}/documents",
                       headers: { 'Authorization' => auth_header(token), 'Content-Type': 'application/json' },
-                      body: validated_params(params, validations))
+                      body: validated_params(params, validations).to_json)
       end
 
       def status(token, document_id)
