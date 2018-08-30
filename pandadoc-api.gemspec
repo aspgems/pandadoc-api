@@ -5,7 +5,7 @@ require 'pandadoc/api/version'
 Gem::Specification.new do |spec|
   spec.name          = 'pandadoc-api'
   spec.version       = Pandadoc::Api::VERSION
-  spec.authors       = ['Michael Carey']
+  spec.authors       = ['Michael Carey', 'Damian Galarza']
   spec.email         = ['mike@catchandrelease.com']
 
   spec.summary       = 'Ruby API Wrapper for the PandaDoc API'
