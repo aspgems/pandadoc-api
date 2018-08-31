@@ -1,5 +1,3 @@
-require 'httparty'
-
 class RequiredParameterError < StandardError
   attr_reader :parameter
 
@@ -52,9 +50,7 @@ module Pandadoc
           metadata: { required: false, type: Hash }
         }
 
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/documents",
-                     headers: { 'Authorization' => auth_header(token) },
-                     query: validated_params(params, validations))
+        client.get '/documents', token, validated_params(params, validations)
       end
 
       def create(token, params = {})
@@ -68,19 +64,15 @@ module Pandadoc
           pricing_tables: { required: false, type: Array }
         }
 
-        HTTParty.post("#{Pandadoc::Api::API_ROOT}/documents",
-                      headers: { 'Authorization' => auth_header(token), 'Content-Type': 'application/json' },
-                      body: validated_params(params, validations).to_json)
+        client.post_json '/documents', token, validated_params(params, validations)
       end
 
       def status(token, document_id)
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/documents/#{document_id}",
-                     headers: { 'Authorization' => auth_header(token) })
+        client.get "/documents/#{document_id}", token
       end
 
       def details(token, document_id)
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/documents/#{document_id}/details",
-                     headers: { 'Authorization' => auth_header(token) })
+        client.get "/documents/#{document_id}/details", token
       end
 
       # send is already a Ruby thing, overriding it would be bad
@@ -90,9 +82,7 @@ module Pandadoc
           silent: { required: false, type: [TrueClass, FalseClass] }
         }
 
-        HTTParty.post("#{Pandadoc::Api::API_ROOT}/documents/#{document_id}/send",
-                      headers: { 'Authorization' => auth_header(token), 'Content-Type': 'application/json' },
-                      body: validated_params(params, validations))
+        client.post_json "/documents/#{document_id}/send", token, validated_params(params, validations)
       end
 
       def link(token, document_id, params = {})
@@ -101,9 +91,7 @@ module Pandadoc
           lifetime: { required: false, type: Integer }
         }
 
-        response = HTTParty.post("#{Pandadoc::Api::API_ROOT}/documents/#{document_id}/session",
-                                 headers: { 'Authorization' => auth_header(token), 'Content-Type': 'application/json' },
-                                 body: validated_params(params, validations))
+        response = client.post_json "/documents/#{document_id}/session", token, validated_params(params, validations)
 
         json_response = JSON.parse(response.body, symbolize_names: true)
         session_id = json_response[:id]
@@ -112,12 +100,7 @@ module Pandadoc
       end
 
       def download(token, document_id)
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/documents/#{document_id}/download",
-                     headers: { 'Authorization' => auth_header(token) })
-      end
-
-      def auth_header(token)
-        "Bearer #{token}"
+        client.get "/documents/#{document_id}/download", token
       end
 
       def validated_params(params, validations)
@@ -136,6 +119,12 @@ module Pandadoc
         end
 
         valid_params
+      end
+
+      private
+
+      def client
+        @client ||= Pandadoc::Api::Client.new
       end
     end
   end
