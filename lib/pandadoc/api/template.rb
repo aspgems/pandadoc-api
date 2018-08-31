@@ -1,5 +1,3 @@
-require 'httparty'
-
 module Pandadoc
   module Api
     class Template
@@ -11,18 +9,11 @@ module Pandadoc
           page: { required: false, type: Integer }
         }
 
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/templates",
-                     headers: { 'Authorization' => auth_header(token) },
-                     query: validated_params(params, validations))
+        client.get '/templates', token, validated_params(params, validations)
       end
 
       def details(token, template_id)
-        HTTParty.get("#{Pandadoc::Api::API_ROOT}/templates/#{template_id}/details",
-                     headers: { 'Authorization' => auth_header(token) })
-      end
-
-      def auth_header(token)
-        "Bearer #{token}"
+        client.get "/templates/#{template_id}/details", token
       end
 
       def validated_params(params, validations)
@@ -41,6 +32,12 @@ module Pandadoc
         end
 
         valid_params
+      end
+
+      private
+
+      def client
+        @client ||= Pandadoc::Api::Client.new
       end
     end
   end

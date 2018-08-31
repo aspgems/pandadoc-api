@@ -2,78 +2,45 @@ require 'spec_helper'
 
 describe Pandadoc::Api::Template do
   subject { Pandadoc::Api::Template.new }
+  let(:token) { 'token' }
+  let(:response) { double(:response) }
+  let(:client_spy) { spy(Pandadoc::Api::Client, get: response) }
+
+  before do
+    allow(Pandadoc::Api::Client).to receive(:new).and_return(client_spy)
+  end
 
   describe 'list' do
-    before :each do
-      stub_request(:get, "#{Pandadoc::Api::API_ROOT}/templates").with(query: hash_including({})).to_return(status: 200)
-    end
-
-    after :each do
-      WebMock.reset!
-    end
-
     it 'calls the right endpoint' do
-      subject.list('token', {})
+      subject.list(token, {})
 
-      expect(a_request(:get, "#{Pandadoc::Api::API_ROOT}/templates")).to have_been_made.once
+      expect(client_spy).to have_received(:get).with('/templates', token, {})
     end
 
     it 'passes the params' do
       params = { q: 'recipe' }
-      subject.list('token', params)
 
-      expect(a_request(:get, "#{Pandadoc::Api::API_ROOT}/templates").with(query: params)).to have_been_made
-    end
+      subject.list(token, params)
 
-    it 'sends authorization' do
-      params = { q: 'recipe' }
-      subject.list('token', params)
-
-      expect(a_request(:get, "#{Pandadoc::Api::API_ROOT}/templates").with(query: params, headers: {
-                                                                            'Authorization': 'Bearer token'
-                                                                          })).to have_been_made
+      expect(client_spy).to have_received(:get).with('/templates', token, params)
     end
 
     it 'returns results' do
-      params = { q: 'recipe' }
-      expect(subject.list('token', params).code).to eq(200)
+      expect(subject.list(token)).to eq response
     end
   end
 
   describe 'details' do
-    before :each do
-      uri_template = Addressable::Template.new "#{Pandadoc::Api::API_ROOT}/templates/{id}/details"
-      stub_request(:get, uri_template).to_return(status: 200)
-    end
-
-    after :each do
-      WebMock.reset!
-    end
-
     it 'calls the right endpoint' do
       template_id = 22
-      subject.details('token', template_id)
 
-      expect(a_request(:get, "#{Pandadoc::Api::API_ROOT}/templates/#{template_id}/details")).to have_been_made.once
-    end
+      subject.details(token, template_id)
 
-    it 'sends authorization' do
-      template_id = 33
-      subject.details('token', template_id)
-
-      expect(a_request(:get, "#{Pandadoc::Api::API_ROOT}/templates/#{template_id}/details").with(headers: {
-                                                                                                   'Authorization': 'Bearer token'
-                                                                                                 })).to have_been_made
+      expect(client_spy).to have_received(:get).with("/templates/#{template_id}/details", token)
     end
 
     it 'returns results' do
-      expect(subject.details('token', 55).code).to eq(200)
-    end
-  end
-
-  describe 'auth_header' do
-    it 'returns the formatted auth header' do
-      expect(subject.auth_header('mexican_food')).to eq('Bearer mexican_food')
+      expect(subject.details(token, 55)).to eq response
     end
   end
 
