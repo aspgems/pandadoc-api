@@ -18,11 +18,13 @@ describe Pandadoc::Api::Document do
       expect(client_spy).to have_received(:get).with('/documents', token, {})
     end
 
-    it 'passes the params' do
+    it 'passes the validated params' do
       params = { q: 'recipe' }
+      validated_params = stub_params_validator(params)
+
       subject.list(token, params)
 
-      expect(client_spy).to have_received(:get).with('/documents', token, params)
+      expect(client_spy).to have_received(:get).with('/documents', token, validated_params)
     end
 
     it 'returns results' do
@@ -35,9 +37,19 @@ describe Pandadoc::Api::Document do
   describe 'create' do
     it 'calls the right endpoint' do
       params = { name: 'My Doc', template_uuid: '1234', recipients: ['a@a.com'] }
+
       subject.create(token, params)
 
       expect(client_spy).to have_received(:post_json).with('/documents', token, params)
+    end
+
+    it 'passes validated params' do
+      params = { name: 'My Doc', template_uuid: '1234', recipients: ['a@a.com'] }
+      validated_params = stub_params_validator(params)
+
+      subject.create(token, params)
+
+      expect(client_spy).to have_received(:post_json).with('/documents', token, validated_params)
     end
 
     it 'returns results' do
@@ -81,16 +93,19 @@ describe Pandadoc::Api::Document do
       expect(client_spy).to have_received(:post_json).with("/documents/#{document_id}/send", token, {})
     end
 
-    it 'passes the params' do
+    it 'passes validated params' do
       document_id = 66
       params = { message: 'Take a look', silent: true }
+      validated_params = stub_params_validator(params)
+
       subject.send_doc(token, document_id, params)
 
-      expect(client_spy).to have_received(:post_json).with("/documents/#{document_id}/send", token, params)
+      expect(client_spy).to have_received(:post_json).with("/documents/#{document_id}/send", token, validated_params)
     end
 
     it 'returns results' do
       document_id = 88
+
       expect(subject.send_doc(token, document_id)).to eq response
     end
   end
@@ -101,9 +116,20 @@ describe Pandadoc::Api::Document do
 
     it 'calls the right endpoint' do
       document_id = 99
+
       subject.link(token, document_id, recipient: 'musk@tesla.com')
 
       expect(client_spy).to have_received(:post_json).with("/documents/#{document_id}/session", token, recipient: 'musk@tesla.com')
+    end
+
+    it 'passes validated params' do
+      params = { recipient: 'musk@tesla.com' }
+      document_id = 99
+      validated_params = stub_params_validator(params)
+
+      subject.link(token, document_id, recipient: 'musk@tesla.com')
+
+      expect(client_spy).to have_received(:post_json).with("/documents/#{document_id}/session", token, validated_params)
     end
 
     it 'returns results' do
@@ -117,6 +143,7 @@ describe Pandadoc::Api::Document do
   describe 'download' do
     it 'calls the right endpoint' do
       document_id = 444
+
       subject.download(token, document_id)
 
       expect(client_spy).to have_received(:get).with("/documents/#{document_id}/download", token)
@@ -127,44 +154,9 @@ describe Pandadoc::Api::Document do
     end
   end
 
-  describe 'validated_params' do
-    describe 'basic behavior' do
-      it 'returns {}' do
-        expect(subject.validated_params({}, {})).not_to be_nil
-      end
-    end
-
-    describe 'passes validations' do
-      describe 'invalid parameter' do
-        it 'returns only the valid params' do
-          params = { valid: '1', invalid: '2' }
-          validations = { valid: { required: false, type: String } }
-
-          expect(subject.validated_params(params, validations)).to eq(valid: '1')
-        end
-      end
-    end
-
-    describe 'missing required' do
-      it 'raises a RequiredParameterError' do
-        params = { can_exist: '2' }
-        validations = { has_to_exist: { required: true, type: String }, can_exist: { required: false, type: String } }
-
-        expect do
-          subject.validated_params(params, validations)
-        end.to raise_error(RequiredParameterError)
-      end
-    end
-
-    describe 'invalid type' do
-      it 'raises a ParameterTypeError' do
-        params = { string_type: 2 }
-        validations = { string_type: { required: false, type: String } }
-
-        expect do
-          subject.validated_params(params, validations)
-        end.to raise_error(ParameterTypeError)
-      end
+  def stub_params_validator(params)
+    double(:validated_params).tap do |validated_params|
+      allow(Pandadoc::Api::ParamsValidator).to receive(:validate).with(params, any_args).and_return(validated_params)
     end
   end
 end

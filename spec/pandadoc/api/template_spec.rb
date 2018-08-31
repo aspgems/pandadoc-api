@@ -17,12 +17,13 @@ describe Pandadoc::Api::Template do
       expect(client_spy).to have_received(:get).with('/templates', token, {})
     end
 
-    it 'passes the params' do
+    it 'passes validated params' do
       params = { q: 'recipe' }
+      validated_params = stub_params_validator(params)
 
       subject.list(token, params)
 
-      expect(client_spy).to have_received(:get).with('/templates', token, params)
+      expect(client_spy).to have_received(:get).with('/templates', token, validated_params)
     end
 
     it 'returns results' do
@@ -44,44 +45,9 @@ describe Pandadoc::Api::Template do
     end
   end
 
-  describe 'validated_params' do
-    describe 'basic behavior' do
-      it 'returns {}' do
-        expect(subject.validated_params({}, {})).not_to be_nil
-      end
-    end
-
-    describe 'passes validations' do
-      describe 'invalid parameter' do
-        it 'returns only the valid params' do
-          params = { valid: '1', invalid: '2' }
-          validations = { valid: { required: false, type: String } }
-
-          expect(subject.validated_params(params, validations)).to eq(valid: '1')
-        end
-      end
-    end
-
-    describe 'missing required' do
-      it 'raises a RequiredParameterError' do
-        params = { can_exist: '2' }
-        validations = { has_to_exist: { required: true, type: String }, can_exist: { required: false, type: String } }
-
-        expect do
-          subject.validated_params(params, validations)
-        end.to raise_error(RequiredParameterError)
-      end
-    end
-
-    describe 'invalid type' do
-      it 'raises a ParameterTypeError' do
-        params = { string_type: 2 }
-        validations = { string_type: { required: false, type: String } }
-
-        expect do
-          subject.validated_params(params, validations)
-        end.to raise_error(ParameterTypeError)
-      end
+  def stub_params_validator(params)
+    double(:validated_params).tap do |validated_params|
+      allow(Pandadoc::Api::ParamsValidator).to receive(:validate).with(params, any_args).and_return(validated_params)
     end
   end
 end

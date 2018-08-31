@@ -1,4 +1,5 @@
 require 'pandadoc/api/client'
+require 'pandadoc/api/params_validator'
 require 'pandadoc/api/version'
 require 'pandadoc/api/document'
 require 'pandadoc/api/template'
