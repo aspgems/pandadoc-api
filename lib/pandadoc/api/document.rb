@@ -32,7 +32,7 @@ module Pandadoc
           name: { required: true, type: String },
           template_uuid: { required: true, type: String },
           recipients: { required: true, type: Array },
-          tokens: { required: false, type: Hash },
+          tokens: { required: false, type: Array },
           fields: { required: false, type: Hash },
           metadata: { required: false, type: Hash },
           pricing_tables: { required: false, type: Array }
