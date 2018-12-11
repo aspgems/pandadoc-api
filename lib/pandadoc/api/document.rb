@@ -77,6 +77,10 @@ module Pandadoc
         client.get "/documents/#{document_id}/download", token
       end
 
+      def delete(token, document_id)
+        client.delete "/documents/#{document_id}", token
+      end
+
       private
 
       def client
