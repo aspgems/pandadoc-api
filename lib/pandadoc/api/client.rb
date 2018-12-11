@@ -11,8 +11,13 @@ module Pandadoc
       def post_json(path, token, params = {})
         uri = build_uri(path)
         headers = default_headers(token).merge('Content-Type' => 'application/json')
-
         HTTParty.post(uri, headers: headers, body: params.to_json)
+      end
+
+      def delete(path, token, params = {})
+        uri = build_uri(path)
+        headers = default_headers(token).merge('Content-Type' => 'application/json')
+        HTTParty.delete(uri, headers: headers, body: params.to_json)
       end
 
       private

@@ -154,6 +154,15 @@ describe Pandadoc::Api::Document do
     end
   end
 
+  describe 'delete' do
+    it 'calls the right endpoint' do
+      document_id = 22
+      subject.delete(token, document_id)
+
+      expect(client_spy).to have_received(:delete).with('/documents/22', token)
+    end
+  end
+
   def stub_params_validator(params)
     double(:validated_params).tap do |validated_params|
       allow(Pandadoc::Api::ParamsValidator).to receive(:validate).with(params, any_args).and_return(validated_params)
