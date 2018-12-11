@@ -16,8 +16,7 @@ module Pandadoc
 
       def delete(path, token, params = {})
         uri = build_uri(path)
-        headers = default_headers(token).merge('Content-Type' => 'application/json')
-        HTTParty.delete(uri, headers: headers, body: params.to_json)
+        HTTParty.delete(uri, headers: default_headers(token))
       end
 
       private

@@ -43,6 +43,9 @@ document_api.status(token, document_id) # returns JSON
 # Document Details
 document_api.details(token, document_id) # returns JSON
 
+# Delete a document
+document_api.delete(token, document_id)
+
 # Send Document
 document_api.send_doc(token, document_id, params = {}) # returns JSON
 
