@@ -17,7 +17,7 @@ module Pandadoc
       def list(token, params = {})
         validations = {
           q: { required: false, type: String },
-          tag: { required: false, type: Integer },
+          tag: { required: false, type: String },
           status: { required: false, type: Integer },
           count: { required: false, type: Integer },
           page: { required: false, type: Integer },
